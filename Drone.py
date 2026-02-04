@@ -14,19 +14,26 @@ def is_applicable(state, action):
     """
     Returns True if action's preconditions are satisfied in state.
     """
-    pass 
+    return all(precond in state for precond in action['preconditions'])
+
 def apply_action(state, action):
     """
     Applies a STRIPS action and returns a NEW state.
     """
-    pass
+    new_state = set(state)  # start from current state
+    for item in action['add']:
+        new_state.add(item)
+    for item in action['delete']:
+        if item in new_state:
+            new_state.remove(item)
+    return frozenset(new_state)
 
 def goal_satisfied(state, goal):
     """
     Checks if all goal fluents are true in the state.
     """
-    pass
     
+    return all(goal in state for goal in goal)
 
 # Planner (BFS)
 
@@ -39,8 +46,20 @@ def forward_search(initial_state, goal_state, actions):
         plan (list of action names)
         states_explored (int)
     """
-    pass
     
+    frontier = deque([(initial_state, [])])
+    explored = set()
+    while frontier:
+        state, plan = frontier.popleft()
+        if state == goal_state:
+            return plan, len(explored)
+        explored.add(state)
+        for action in actions:
+            if is_applicable(state, action):
+                new_state = apply_action(state, action)
+                if new_state not in explored:
+                    frontier.append((new_state, plan + [action['name']]))
+    return None, len(explored)
 
 # Domain Definition
 
