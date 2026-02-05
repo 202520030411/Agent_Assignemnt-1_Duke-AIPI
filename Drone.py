@@ -70,22 +70,38 @@ def create_actions():
     """
     
     actions = []
-
-    pass
-
+    actions.append({
+        'name': 'takeoff',
+        'preconditions': ['at_base'],
+        'add': ['at_air'],
+        'delete': ['at_base']
+    })
+    actions.append({
+        'name': 'land',
+        'preconditions': ['at_air'],
+        'add': ['at_base'],
+        'delete': ['at_air']
+    })
+    actions.append({
+        'name': 'deliver',
+        'preconditions': ['at_air', 'has_package'],
+        'add': ['delivered'],
+        'delete': ['has_package']
+    })
+    return actions
 
 def create_initial_state():
     """
     Returns the initial state as a frozenset.
     """
-    pass
-
+    
+    return frozenset(['at_base'])
 
 def create_goal_state():
     """
     Returns the goal state as a frozenset.
     """
-    pass
+    return frozenset(['delivered'])
 
 # Main Runner
 
