@@ -69,55 +69,152 @@ def create_actions():
     """
     
     actions = []
+    customers = ['c1', 'c2', 'c3', 'c4', 'c5']
+    customer_costs = {
+        'c1': 2,
+        'c2': 2,
+        'c3': 3,
+        'c4': 4,
+        'c5': 3,
+    }
 
-    # Movement actions (consume battery)
+    # Movement actions (each trip costs 2 battery units)
+    for level in range(2, 11):
+        actions.append({
+            'name': f'fly_base_to_pickup_b{level}',
+            'preconditions': ['at_base', f'battery_{level}'],
+            'add': ['at_pickup', f'battery_{level - 2}'],
+            'delete': ['at_base', f'battery_{level}']
+        })
+        actions.append({
+            'name': f'fly_pickup_to_base_b{level}',
+            'preconditions': ['at_pickup', f'battery_{level}'],
+            'add': ['at_base', f'battery_{level - 2}'],
+            'delete': ['at_pickup', f'battery_{level}']
+        })
+
+    # Movement actions with varied customer distances (costs 2-4 units)
+    for customer in customers:
+        cost = customer_costs[customer]
+        for level in range(cost, 11):
+            actions.append({
+                'name': f'fly_pickup_to_{customer}_b{level}',
+                'preconditions': ['at_pickup', f'battery_{level}'],
+                'add': [f'at_{customer}', f'battery_{level - cost}'],
+                'delete': ['at_pickup', f'battery_{level}']
+            })
+            actions.append({
+                'name': f'fly_{customer}_to_pickup_b{level}',
+                'preconditions': [f'at_{customer}', f'battery_{level}'],
+                'add': ['at_pickup', f'battery_{level - cost}'],
+                'delete': [f'at_{customer}', f'battery_{level}']
+            })
+            actions.append({
+                'name': f'fly_{customer}_to_base_b{level}',
+                'preconditions': [f'at_{customer}', f'battery_{level}'],
+                'add': ['at_base', f'battery_{level - cost}'],
+                'delete': [f'at_{customer}', f'battery_{level}']
+            })
+
+    # Pickup and delivery (one package at a time)
     actions.append({
-        'name': 'fly_base_to_pickup',
-        'preconditions': ['at_base', 'battery_full'],
-        'add': ['at_pickup', 'battery_low'],
-        'delete': ['at_base', 'battery_full']
+        'name': 'pickup_package_c1',
+        'preconditions': ['at_pickup', 'carrying_none', 'package_c1_at_pickup'],
+        'add': ['carrying_c1'],
+        'delete': ['carrying_none', 'package_c1_at_pickup']
     })
     actions.append({
-        'name': 'fly_pickup_to_customer',
-        'preconditions': ['at_pickup', 'battery_full', 'has_package'],
-        'add': ['at_customer', 'battery_low'],
-        'delete': ['at_pickup', 'battery_full']
+        'name': 'pickup_package_c2',
+        'preconditions': ['at_pickup', 'carrying_none', 'package_c2_at_pickup'],
+        'add': ['carrying_c2'],
+        'delete': ['carrying_none', 'package_c2_at_pickup']
+    })
+    actions.append({
+        'name': 'pickup_package_c3',
+        'preconditions': ['at_pickup', 'carrying_none', 'package_c3_at_pickup'],
+        'add': ['carrying_c3'],
+        'delete': ['carrying_none', 'package_c3_at_pickup']
+    })
+    actions.append({
+        'name': 'pickup_package_c4',
+        'preconditions': ['at_pickup', 'carrying_none', 'package_c4_at_pickup'],
+        'add': ['carrying_c4'],
+        'delete': ['carrying_none', 'package_c4_at_pickup']
+    })
+    actions.append({
+        'name': 'pickup_package_c5',
+        'preconditions': ['at_pickup', 'carrying_none', 'package_c5_at_pickup'],
+        'add': ['carrying_c5'],
+        'delete': ['carrying_none', 'package_c5_at_pickup']
+    })
+    actions.append({
+        'name': 'deliver_package_c1',
+        'preconditions': ['at_c1', 'carrying_c1'],
+        'add': ['delivered_c1', 'carrying_none'],
+        'delete': ['carrying_c1']
+    })
+    actions.append({
+        'name': 'deliver_package_c2',
+        'preconditions': ['at_c2', 'carrying_c2'],
+        'add': ['delivered_c2', 'carrying_none'],
+        'delete': ['carrying_c2']
+    })
+    actions.append({
+        'name': 'deliver_package_c3',
+        'preconditions': ['at_c3', 'carrying_c3'],
+        'add': ['delivered_c3', 'carrying_none'],
+        'delete': ['carrying_c3']
+    })
+    actions.append({
+        'name': 'deliver_package_c4',
+        'preconditions': ['at_c4', 'carrying_c4'],
+        'add': ['delivered_c4', 'carrying_none'],
+        'delete': ['carrying_c4']
+    })
+    actions.append({
+        'name': 'deliver_package_c5',
+        'preconditions': ['at_c5', 'carrying_c5'],
+        'add': ['delivered_c5', 'carrying_none'],
+        'delete': ['carrying_c5']
     })
 
-    # Pickup and delivery
-    actions.append({
-        'name': 'pickup_package',
-        'preconditions': ['at_pickup'],
-        'add': ['has_package'],
-        'delete': []
-    })
-    actions.append({
-        'name': 'deliver_package',
-        'preconditions': ['at_customer', 'has_package'],
-        'add': ['delivered'],
-        'delete': ['has_package']
-    })
-
-    # Recharge action (restore battery)
-    actions.append({
-        'name': 'recharge_at_pickup',
-        'preconditions': ['at_pickup', 'battery_low'],
-        'add': ['battery_full'],
-        'delete': ['battery_low']
-    })
+    # Recharge action (restore battery to full at base)
+    for level in range(0, 10):
+        actions.append({
+            'name': f'recharge_at_base_b{level}',
+            'preconditions': ['at_base', f'battery_{level}'],
+            'add': ['battery_10'],
+            'delete': [f'battery_{level}']
+        })
     return actions
 
 def create_initial_state():
     """
     Returns the initial state as a frozenset.
     """
-    return frozenset(['at_base', 'battery_full'])
+    return frozenset([
+        'at_base',
+        'battery_10',
+        'carrying_none',
+        'package_c1_at_pickup',
+        'package_c2_at_pickup',
+        'package_c3_at_pickup',
+        'package_c4_at_pickup',
+        'package_c5_at_pickup'
+    ])
 
 def create_goal_state():
     """
     Returns the goal state as a frozenset.
     """
-    return frozenset(['delivered'])
+    return frozenset([
+        'at_base',
+        'delivered_c1',
+        'delivered_c2',
+        'delivered_c3',
+        'delivered_c4',
+        'delivered_c5'
+    ])
 
 # Main Runner
 
