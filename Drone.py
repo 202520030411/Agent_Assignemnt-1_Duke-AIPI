@@ -32,8 +32,7 @@ def goal_satisfied(state, goal):
     """
     Checks if all goal fluents are true in the state.
     """
-    
-    return all(goal in state for goal in goal)
+    return all(fluent in state for fluent in goal)
 
 # Planner (BFS)
 
@@ -51,7 +50,7 @@ def forward_search(initial_state, goal_state, actions):
     explored = set()
     while frontier:
         state, plan = frontier.popleft()
-        if state == goal_state:
+        if goal_satisfied(state, goal_state):
             return plan, len(explored)
         explored.add(state)
         for action in actions:
@@ -70,23 +69,41 @@ def create_actions():
     """
     
     actions = []
+
+    # Movement actions (consume battery)
     actions.append({
-        'name': 'takeoff',
-        'preconditions': ['at_base'],
-        'add': ['at_air'],
-        'delete': ['at_base']
+        'name': 'fly_base_to_pickup',
+        'preconditions': ['at_base', 'battery_full'],
+        'add': ['at_pickup', 'battery_low'],
+        'delete': ['at_base', 'battery_full']
     })
     actions.append({
-        'name': 'land',
-        'preconditions': ['at_air'],
-        'add': ['at_base'],
-        'delete': ['at_air']
+        'name': 'fly_pickup_to_customer',
+        'preconditions': ['at_pickup', 'battery_full', 'has_package'],
+        'add': ['at_customer', 'battery_low'],
+        'delete': ['at_pickup', 'battery_full']
+    })
+
+    # Pickup and delivery
+    actions.append({
+        'name': 'pickup_package',
+        'preconditions': ['at_pickup'],
+        'add': ['has_package'],
+        'delete': []
     })
     actions.append({
-        'name': 'deliver',
-        'preconditions': ['at_air', 'has_package'],
+        'name': 'deliver_package',
+        'preconditions': ['at_customer', 'has_package'],
         'add': ['delivered'],
         'delete': ['has_package']
+    })
+
+    # Recharge action (restore battery)
+    actions.append({
+        'name': 'recharge_at_pickup',
+        'preconditions': ['at_pickup', 'battery_low'],
+        'add': ['battery_full'],
+        'delete': ['battery_low']
     })
     return actions
 
@@ -94,8 +111,7 @@ def create_initial_state():
     """
     Returns the initial state as a frozenset.
     """
-    
-    return frozenset(['at_base'])
+    return frozenset(['at_base', 'battery_full'])
 
 def create_goal_state():
     """
