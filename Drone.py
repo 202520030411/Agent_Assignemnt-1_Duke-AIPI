@@ -10,11 +10,14 @@ from collections import deque
 # STRIPS Helper Functions
 
 
+# Check whether an action can be applied in the current state.
 def is_applicable(state, action):
     """
     Returns True if action's preconditions are satisfied in state.
     """
     return all(precond in state for precond in action['preconditions'])
+
+# Apply action effects to produce the next state.
 
 def apply_action(state, action):
     """
@@ -28,6 +31,8 @@ def apply_action(state, action):
             new_state.remove(item)
     return frozenset(new_state)
 
+# Verify that all goal facts are present in the state.
+
 def goal_satisfied(state, goal):
     """
     Checks if all goal fluents are true in the state.
@@ -35,6 +40,9 @@ def goal_satisfied(state, goal):
     return all(fluent in state for fluent in goal)
 
 # Planner (BFS)
+
+
+# Perform BFS to find a valid plan.
 
 
 def forward_search(initial_state, goal_state, actions):
@@ -62,6 +70,7 @@ def forward_search(initial_state, goal_state, actions):
 
 # Domain Definition
 
+# Build all ground actions for the domain.
 def create_actions():
     """
     Define ALL ground actions here.
@@ -93,6 +102,7 @@ def create_actions():
             'delete': ['at_pickup', f'battery_{level}']
         })
 
+
     # Movement actions with varied customer distances (costs 2-4 units)
     for customer in customers:
         cost = customer_costs[customer]
@@ -117,6 +127,7 @@ def create_actions():
             })
 
     # Pickup and delivery (one package at a time)
+    
     actions.append({
         'name': 'pickup_package_c1',
         'preconditions': ['at_pickup', 'carrying_none', 'package_c1_at_pickup'],
@@ -165,6 +176,7 @@ def create_actions():
         'add': ['delivered_c3', 'carrying_none'],
         'delete': ['carrying_c3']
     })
+    
     actions.append({
         'name': 'deliver_package_c4',
         'preconditions': ['at_c4', 'carrying_c4'],
@@ -188,6 +200,8 @@ def create_actions():
         })
     return actions
 
+# Define the initial state.
+
 def create_initial_state():
     """
     Returns the initial state as a frozenset.
@@ -203,6 +217,7 @@ def create_initial_state():
         'package_c5_at_pickup'
     ])
 
+# Define the goal state.
 def create_goal_state():
     """
     Returns the goal state as a frozenset.
@@ -218,6 +233,7 @@ def create_goal_state():
 
 # Main Runner
 
+# Run the planner and print the results.
 def main():
 
     actions = create_actions()
