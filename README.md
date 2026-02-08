@@ -1,14 +1,14 @@
 # Drone Delivery STRIPS Planner
 
 ## Overview
-This project implements a classical planning system using STRIPS-style representations to model a real-world drone delivery scenario. A Breadth-First Search (BFS) planner is used to generate a sequence of actions that allows a drone to successfully deliver packages while managing battery constraints.
+This project implements a classical planning system using STRIPS-style representations to model a real-world drone delivery scenario. An A\* planner is used to generate a sequence of actions that allows a drone to successfully deliver packages while managing battery constraints.
 
 ![Drone](Drone.jpeg)
 
 # Part 1: Domain Selection & Description
 
 ## Real-World Scenario
-The domain models an autonomous delivery drone responsible for transporting packages from a central base to multiple customers. The drone must manage limited battery resources, travel between locations, pick up packages, deliver them, and recharge when necessary. For example, once a food delivery is ordered online, a drone is obligated to get the food at the pick-up restaurant and deliver it to the customer at home while ensuring it can get back to the base with battery constraints. 
+The domain models an autonomous delivery drone responsible for transporting packages from a pickup location to multiple customers. The drone must manage limited battery resources, travel between locations, pick up packages, deliver them, and recharge at base when necessary. For example, once a food delivery is ordered online, a drone is obligated to get the food from the pick-up restaurant and deliver it to the customer at home while ensuring it can get back to the base with battery constraints. 
 
 This scenario reflects real-world logistics systems used in modern drone delivery services, where intelligent planning is required to optimize routes and ensure successful mission completion.
 
@@ -32,7 +32,8 @@ The drone's objective is to:
 1. Deliver all packages to their respective customers  
 2. Manage battery usage during travel  
 3. Recharge when necessary  
-4. Return to base after completing all deliveries  
+4. Return to base after completing all deliveries
+5. Minimize battery cost if possible   
 
 
 
@@ -191,7 +192,7 @@ Verifies that all goal fluents are true.
 
 
 
-### `forward_search(initial_state, goal_state, actions)`
+### `heuristic_search(initial_state, goal_state, actions)`
 Implements **A\*** search, which:
 
 - Uses a priority queue ordered by `f = g + h`  
