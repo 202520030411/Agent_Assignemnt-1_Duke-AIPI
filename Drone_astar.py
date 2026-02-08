@@ -38,7 +38,7 @@ def create_goal_state():
 
 # Planner (A*)
 
-def forward_search(initial_state, goal_state, actions):
+def heuristic_search(initial_state, goal_state, actions):
     """
     A* Search planner.
 
@@ -284,7 +284,7 @@ def main():
     initial_state = create_initial_state()
     goal_state = create_goal_state()
 
-    plan, explored = forward_search(initial_state, goal_state, actions)
+    plan, explored = heuristic_search(initial_state, goal_state, actions)
 
     print("\n===== RESULT =====")
 
