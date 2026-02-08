@@ -36,6 +36,7 @@ def create_goal_state():
 
 
 
+
 # Planner (A*)
 
 def heuristic_search(initial_state, goal_state, actions):
@@ -54,11 +55,7 @@ def heuristic_search(initial_state, goal_state, actions):
         'c5': 3,
     }
     base_pickup_cost = 2
-    def battery_level(state):
-        for item in state:
-            if item.startswith('battery_'):
-                return int(item.split('_')[1])
-        return 0
+    
 
     def heuristic(state):
 
