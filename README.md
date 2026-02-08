@@ -3,7 +3,7 @@
 ## Overview
 This project implements a classical planning system using STRIPS-style representations to model a real-world drone delivery scenario. A Breadth-First Search (BFS) planner is used to generate a sequence of actions that allows a drone to successfully deliver packages while managing battery constraints.
 
----
+![Drone](Drone.jpeg)
 
 # Part 1: Domain Selection & Description
 
@@ -12,7 +12,7 @@ The domain models an autonomous delivery drone responsible for transporting pack
 
 This scenario reflects real-world logistics systems used in modern drone delivery services, where intelligent planning is required to optimize routes and ensure successful mission completion.
 
----
+
 
 ## Entities / Objects in the Domain
 
@@ -24,7 +24,7 @@ The domain contains the following objects:
 - **Customers (c1–c5)** – delivery destinations.
 - **Packages** – one package per customer.
 - **Battery Levels** – discretized energy states ranging from `battery_0` to `battery_10`.
----
+
 
 ## Agent Objective
 The drone's objective is to:
@@ -34,7 +34,7 @@ The drone's objective is to:
 3. Recharge when necessary  
 4. Return to base after completing all deliveries  
 
----
+
 
 ## Why Planning is Needed
 
@@ -88,7 +88,7 @@ Only one battery level can be true at a time.
 - Previous location  
 - Previous battery level  
 
----
+
 
 ### 2. Pick Up Package
 
@@ -106,7 +106,7 @@ Only one battery level can be true at a time.
 - Package is no longer at pickup  
 - Drone is no longer empty  
 
----
+
 
 ### 3. Deliver Package
 
@@ -123,7 +123,7 @@ Only one battery level can be true at a time.
 **Delete Effects:**
 - Drone is no longer carrying the package  
 
----
+
 
 ### 4. Recharge Battery
 
@@ -159,21 +159,21 @@ Only one battery level can be true at a time.
 
 The planner is implemented in Python using STRIPS principles.
 
----
+
 
 ## Domain Definition
 All ground actions are programmatically generated in `create_actions()`, allowing the planner to scale to larger problem sizes.
 
 Battery consumption varies depending on customer distance, creating a non-trivial state space that requires intelligent planning.
 
----
+
 
 ## Planner Functions
 
 ### `is_applicable(state, action)`
 Checks whether an action’s preconditions are satisfied in the current state.
 
----
+
 
 ### `apply_action(state, action)`
 Applies STRIPS transitions:
@@ -184,12 +184,12 @@ new_state = (state - delete_list) ∪ add_list
 
 Returns a new immutable state to ensure safe tracking during search.
 
----
+
 
 ### `goal_satisfied(state, goal)`
 Verifies that all goal fluents are true.
 
----
+
 
 ### `forward_search(initial_state, goal_state, actions)`
 Implements **Breadth-First Search**, which:
@@ -198,7 +198,7 @@ Implements **Breadth-First Search**, which:
 - Guarantees the shortest plan in terms of number of actions  
 - Avoids revisiting states using an explored set  
 
----
+
 
 ## Why BFS Instead of A*
 
@@ -221,7 +221,7 @@ The `main()` function:
 
 If no solution exists, the program reports `"No plan found"`.
 
----
+
 
 # How to Run
 
