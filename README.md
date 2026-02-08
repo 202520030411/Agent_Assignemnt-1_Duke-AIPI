@@ -40,7 +40,7 @@ The drone's objective is to:
 
 A simple reflex agent is insufficient for this domain because actions have **long-term consequences**, that is, without proper planning, the drone may run out of batteries before completing the tasks.
 
-Therefore, the agent must reason about future states and choose an action sequence that satisfies all constraints — making this a classical planning problem.
+Therefore, the agent must reason about future states and choose an action sequence that satisfies all constraints, making this a classical planning problem.
 
 ---
 
@@ -192,19 +192,18 @@ Verifies that all goal fluents are true.
 
 
 ### `forward_search(initial_state, goal_state, actions)`
-Implements **Breadth-First Search**, which:
+Implements **A\*** search, which:
 
-- Explores states level-by-level  
-- Guarantees the shortest plan in terms of number of actions  
-- Avoids revisiting states using an explored set  
+- Uses a priority queue ordered by `f = g + h`  
+- Optimizes for **battery cost** (each action has a cost)  
+- Uses a heuristic to estimate remaining battery cost  
+- Avoids revisiting states using an explored set and best-cost tracking 
 
+The heuristic function is admissible because it estimate the lower bound of the battery cost by summing the costs of trips from remaining customers to the pickup. Since it ignores extra required moves like needing to go to pickup before each delivery and recharging at base, it usually underestimate but will never overestimate the cost. 
 
+## Why A* Instead of BFS
 
-## Why BFS Instead of A*
-
-We chose **BFS** because it is simple, reliable, and guarantees the shortest plan in terms of number of actions without requiring a hand-crafted heuristic. In this domain, designing a strong admissible heuristic is non-trivial due to varied customer distances, battery constraints, and recharge requirements. Additionaly, due to the relatively small customer size, the state space is small enough for BFS to solve efficiently. Using A* doesn’t dramatically reduce states explored because the domain is simple and the naive heuristic is not strong enough to prune many paths. BFS ensures we correctly find the shortest path without leading to too much additional cost on path search compared to A*. 
-
----
+We used A\* instead of BFS because this domain is effectively a weighted planning problem: different flights consume different amounts of battery (some customers are farther than others). BFS treats every action as the same cost and only minimizes the number of actions, which can lead to battery-inefficient routes. A\* lets us optimize total battery cost, while still using a heuristic to guide the search and reduce unnecessary exploration.
 
 ## Main Execution Flow
 
@@ -226,7 +225,7 @@ If no solution exists, the program reports `"No plan found"`.
 # How to Run
 
 ```bash
-python Drone.py
+python Drone_astar.py
 ```
 
 ---
